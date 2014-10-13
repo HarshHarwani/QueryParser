@@ -61,6 +61,7 @@ public class PreProcessingQuery {
 		}
 		if(!matchFlag)
 			parsedQuery=userQuery;
+		
 		String [] tokens= parsedQuery.split(" ");
 		for(int i=0;i<tokens.length;i++)
 		{

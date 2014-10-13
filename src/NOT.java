@@ -29,7 +29,7 @@ public class NOT implements Expression
 	@Override
 	public String toString()
 	{
-		return leftExpression.toString()+"AND"+rightExpression.toString();
+		return leftExpression.toString()+" "+"AND"+" "+rightExpression.toString();
 		
 	}
 

@@ -19,7 +19,7 @@ public class QueryMain {
 		final String AUTHOR="AUTHOR:";
 		final String PLACE="PLACE:";*/
 
-		String userQuery="Author:rushdie NOT jihad";
+		String userQuery="(Category:War AND (Author:Dutt AND Place:Baghdad)) AND (prisoners detainees rebels)";
 		System.out.println("The Entered Query Is-->"+userQuery);
 		String proccessedQuery="";
 		PreProcessingQuery pQuery=new PreProcessingQuery();
@@ -31,6 +31,15 @@ public class QueryMain {
 			Stack<Expression> operatorStack= new Stack<Expression>();
 			for(int i=0;i<queryTokens.length;i++)
 			{
+				
+				if(queryTokens[i].startsWith("\""));
+				{
+					while(queryTokens[i].endsWith("\""))
+					{
+						queryTokens[i]=queryTokens[i]+" "+queryTokens[i];
+						i++;
+					}
+				}
 				if(queryTokens[i].equals(OPAND))
 				{
 					operatorStack.push(new AND());
@@ -45,7 +54,23 @@ public class QueryMain {
 				}
 				if(!queryTokens[i].equals(OPAND) && !queryTokens[i].equals(OPNOT) && !queryTokens[i].equals(OPOR))
 				{
-					operandStack.push(new Term(queryTokens[i]));
+					if(i!=0)
+					{
+						if(queryTokens[i-1].equals(OPNOT))
+						{
+							Term term=new Term(queryTokens[i]);
+							term.notFlag=true;
+							operandStack.push(term);
+						}
+						else
+						{
+							operandStack.push(new Term(queryTokens[i]));
+						}
+					}
+					else
+					{
+						operandStack.push(new Term(queryTokens[i]));
+					}
 				}
 
 				if(queryTokens[i].contains("("))

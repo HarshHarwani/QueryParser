@@ -24,14 +24,30 @@ public class Term implements Expression {
 	@Override
 	public String toString()
 	{
-		if(queryTerm.contains(":") || queryTerm.equals("AND") || queryTerm.equals("OR") || queryTerm.equals("NOT"))
+		if(queryTerm.contains(":") || queryTerm.equals("AND") || queryTerm.equals("OR") || queryTerm.equals("NOT") && !notFlag)
 		{
-		return queryTerm;
-		}
-		else if(queryTerm.equals("NOT"))
-		{
-			queryTerm="AND";
-			notFlag=true;
+			if(queryTerm.contains("(") || queryTerm.contains("["))
+			{
+				queryTerm=queryTerm.replace("(","[");
+				barFlag=true;
+			}
+			if(queryTerm.contains(")"))
+			{
+				queryTerm=queryTerm.replace(")","]");
+				barFlag=true;
+			}
+			 if(notFlag && !barFlag)
+			{
+				queryTerm="<Term:"+queryTerm+">";
+				notFlag=false;
+			}
+			 if(notFlag && barFlag)
+			{
+				StringBuffer sbBuffer= new StringBuffer();
+				queryTerm=sbBuffer.append("<").append(queryTerm).toString();
+				queryTerm=sbBuffer.insert(queryTerm.indexOf("]"),">").toString();
+			}
+			
 			return queryTerm;
 		}
 		else
@@ -46,21 +62,27 @@ public class Term implements Expression {
 				queryTerm=queryTerm.replace(")","]");
 				barFlag=true;
 			}
-			if(notFlag)
+			 if(notFlag && !barFlag)
 			{
 				queryTerm="<Term:"+queryTerm+">";
-				notFlag=false;
 			}
-			if(!barFlag)
+			 if(notFlag && barFlag)
 			{
-				queryTerm="Term:"+queryTerm;
+				StringBuffer sbBuffer= new StringBuffer();
+				queryTerm=sbBuffer.append("<Term:").append(queryTerm).toString();
+				queryTerm=sbBuffer.insert(queryTerm.indexOf("]"),">").toString();
 			}
-			if(barFlag)
+			if(barFlag && !notFlag)
 			{
 				sbBuffer.append(queryTerm);
 				queryTerm=sbBuffer.insert(sbBuffer.indexOf("[")+1,"Term:").toString();
 				
 			}
+			if(!notFlag && !barFlag)
+			{
+				queryTerm="Term:"+queryTerm;
+			}
+			
 		}
 		return queryTerm;
 		

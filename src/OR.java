@@ -28,7 +28,7 @@ public class OR implements Expression {
 	@Override
 	public String toString()
 	{
-		return leftExpression.toString()+"OR"+rightExpression.toString();
+		return leftExpression.toString()+" "+"OR"+" "+rightExpression.toString();
 		
 	}
 }
