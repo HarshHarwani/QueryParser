@@ -8,18 +8,16 @@ public class QueryMain {
 		final String OPAND="AND";
 		final String OPOR="OR";
 		final String OPNOT="NOT";
-		final String STARTBRACE="{";
-		final String ENDBRACE="}";
 		/*final String TERM="Term:";
 		final String TERMNOT="<TERM:";
 		final String STARTBRACE="{";
 		final String ENDBRACE="}";
 		final String ENDANGULAR=">";
 		final String CATEGORY="CATEGORY:";
-		final String AUTHOR="AUTHOR:";
+		final String AUTHOR="AUTHOR:"
 		final String PLACE="PLACE:";*/
 
-		String userQuery="(Category:War AND (Author:Dutt AND Place:Baghdad)) AND (prisoners detainees rebels)";
+		String userQuery="author:(brian OR richard) AND place:(paris OR washington)";
 		System.out.println("The Entered Query Is-->"+userQuery);
 		String proccessedQuery="";
 		PreProcessingQuery pQuery=new PreProcessingQuery();
@@ -27,19 +25,11 @@ public class QueryMain {
 			proccessedQuery=pQuery.preProcessingQuery(userQuery);
 			System.out.println("The PreProcessed Query Is-->"+proccessedQuery);
 			String[] queryTokens=proccessedQuery.split(" ");
+			StringBuffer sbBuffer=new StringBuffer();
 			Stack<Expression> operandStack = new Stack<Expression>();
 			Stack<Expression> operatorStack= new Stack<Expression>();
 			for(int i=0;i<queryTokens.length;i++)
 			{
-				
-				if(queryTokens[i].startsWith("\""));
-				{
-					while(queryTokens[i].endsWith("\""))
-					{
-						queryTokens[i]=queryTokens[i]+" "+queryTokens[i];
-						i++;
-					}
-				}
 				if(queryTokens[i].equals(OPAND))
 				{
 					operatorStack.push(new AND());
@@ -64,70 +54,94 @@ public class QueryMain {
 						}
 						else
 						{
+							if(queryTokens[i].contains("\""))
+							{
+								String tokString="";
+								for(;i<queryTokens.length;i++)
+								{
+									tokString=queryTokens[i];
+									sbBuffer.append(tokString).append(" ").toString();
+									if(tokString.endsWith("\""))
+										break;
+								}
+								queryTokens[i]=sbBuffer.toString();
+							}
 							operandStack.push(new Term(queryTokens[i]));
 						}
 					}
-					else
+						else
+						{
+							if(queryTokens[i].contains("\""))
+							{
+								String tokString="";
+								for(;i<queryTokens.length;i++)
+								{
+									tokString=queryTokens[i];
+									sbBuffer.append(tokString).append(" ").toString();
+									if(tokString.endsWith("\""))
+										break;
+								}
+								queryTokens[i]=sbBuffer.toString().trim();
+							}
+							operandStack.push(new Term(queryTokens[i]));
+						}
+					}
+
+					if(queryTokens[i].contains("("))
+						operatorStack.push(new Bracket("("));
+
+					if(queryTokens[i].contains(")"))
 					{
-						operandStack.push(new Term(queryTokens[i]));
+						Expression expression2;
+						do
+						{
+							expression2=operatorStack.pop();
+
+							if(expression2 instanceof AND)
+							{
+								operandStack.push(new AND(operandStack.pop(),operandStack.pop()));
+							}
+							if( expression2 instanceof OR)
+							{
+								operandStack.push(new OR(operandStack.pop(),operandStack.pop()));
+							}
+							if(expression2 instanceof NOT)
+							{
+								operandStack.push(new NOT(operandStack.pop(),operandStack.pop()));
+							}
+						}while(!(expression2 instanceof Bracket));
+					}
+
+				}
+				while(!operatorStack.isEmpty())
+				{
+					Expression expression3=operatorStack.pop();
+					if(expression3 instanceof AND)
+					{
+						operandStack.push(new AND(operandStack.pop(),operandStack.pop()));
+					}
+					if(expression3 instanceof OR)
+					{
+						operandStack.push(new OR(operandStack.pop(),operandStack.pop()));
+					}
+					if(expression3 instanceof NOT)
+					{
+						operandStack.push(new NOT(operandStack.pop(),operandStack.pop()));
 					}
 				}
+				Expression expression=operandStack.pop();
+				String FinalParsedQuery=expression.toString();
+				System.out.println("The Final Processed query is-->"+"{"+FinalParsedQuery+"}");
 
-				if(queryTokens[i].contains("("))
-					operatorStack.push(new Bracket("("));
 
-				if(queryTokens[i].contains(")"))
-				{
-					Expression expression2;
-					do
-					{
-						expression2=operatorStack.pop();
-
-						if(expression2 instanceof AND)
-						{
-							operandStack.push(new AND(operandStack.pop(),operandStack.pop()));
-						}
-						if( expression2 instanceof OR)
-						{
-							operandStack.push(new OR(operandStack.pop(),operandStack.pop()));
-						}
-						if(expression2 instanceof NOT)
-						{
-							operandStack.push(new NOT(operandStack.pop(),operandStack.pop()));
-						}
-					}while(!(expression2 instanceof Bracket));
-				}
-
+			} catch (QueryPreProcessingException e) {
+				e.printStackTrace();
 			}
-			while(!operatorStack.isEmpty())
+			catch(Exception e)
 			{
-				Expression expression3=operatorStack.pop();
-				if(expression3 instanceof AND)
-				{
-					operandStack.push(new AND(operandStack.pop(),operandStack.pop()));
-				}
-				if(expression3 instanceof OR)
-				{
-					operandStack.push(new OR(operandStack.pop(),operandStack.pop()));
-				}
-				if(expression3 instanceof NOT)
-				{
-					operandStack.push(new NOT(operandStack.pop(),operandStack.pop()));
-				}
+				e.printStackTrace();
 			}
-			Expression expression=operandStack.pop();
-			String FinalParsedQuery=expression.toString();
-			System.out.println("The Final Processed query is-->"+"{"+FinalParsedQuery+"}");
 
-
-		} catch (QueryPreProcessingException e) {
-			e.printStackTrace();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
 		}
 
 	}
-
-}
