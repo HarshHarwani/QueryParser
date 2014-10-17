@@ -75,7 +75,7 @@ public class Term implements Expression {
 			if(barFlag && !notFlag)
 			{
 				sbBuffer.append(queryTerm);
-				queryTerm=sbBuffer.insert(sbBuffer.indexOf("[")+1,"Term:").toString();
+				queryTerm=sbBuffer.insert(sbBuffer.lastIndexOf("[")+1,"Term:").toString();
 				
 			}
 			if(!notFlag && !barFlag)

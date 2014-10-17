@@ -86,7 +86,6 @@ public class QueryMain {
 							operandStack.push(new Term(queryTokens[i]));
 						}
 					}
-
 					if(queryTokens[i].contains("("))
 						operatorStack.push(new Bracket("("));
 
