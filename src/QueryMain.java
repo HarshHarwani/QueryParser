@@ -16,13 +16,15 @@ public class QueryMain {
 		final String CATEGORY="CATEGORY:";
 		final String AUTHOR="AUTHOR:"
 		final String PLACE="PLACE:";*/
-
-		String userQuery="author:(brian OR richard) AND place:(paris OR washington)";
+		String defaultOperator="";
+		if(defaultOperator.equals("") || defaultOperator==null || defaultOperator.equals(" "))
+			defaultOperator="OR";
+		String userQuery="Category:War AND Author:Dutt AND Place:Baghdad AND prisoners detainees rebels";
 		System.out.println("The Entered Query Is-->"+userQuery);
 		String proccessedQuery="";
 		PreProcessingQuery pQuery=new PreProcessingQuery();
 		try {
-			proccessedQuery=pQuery.preProcessingQuery(userQuery);
+			proccessedQuery=pQuery.preProcessingQuery(userQuery,defaultOperator);
 			System.out.println("The PreProcessed Query Is-->"+proccessedQuery);
 			String[] queryTokens=proccessedQuery.split(" ");
 			StringBuffer sbBuffer=new StringBuffer();
